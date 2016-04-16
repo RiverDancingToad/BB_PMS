@@ -44,6 +44,17 @@ public class GetConnection{
 //        connectionProps.put("password", password);
     }
     //constructor to call kevins db connection
+    //constructors
+    public GetConnection() {
+        this.username = "bbpms";
+        this.password = "bbpms";
+        this.schema = "orcl";
+        this.server = "bbpms.ddns.net";
+        this.port = 1521;
+//        connectionProps = new Properties();
+//        connectionProps.put("user", username);
+//        connectionProps.put("password", password);
+    }
     public GetConnection(int x){
         if(x == 5) {
             this.username = "system";
@@ -56,6 +67,14 @@ public class GetConnection{
     }
     //end constructors
     
+    public void closeConnection(){
+        try{
+            stmt.close();
+            rs.close();
+            conn.close();
+        }catch (SQLException ex){
+        }
+    }
     //getters
     public Connection getConn() {
         return this.conn;
@@ -90,12 +109,12 @@ public class GetConnection{
         //System.out.println(URL);
         try {
             this.conn = DriverManager.getConnection(URL, username, password);
-            System.out.println("DB Connection Made");
+            //System.out.println("DB Connection Made");
         } catch(SQLException ex) {
             //System.out.println(ex.getMessage());
             showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             System.out.println("did not connect to DB");
-        }
+        }     
     }
     
     //method validateUser()
@@ -169,7 +188,7 @@ public class GetConnection{
     
     //method getResults(), Prasana returning DB info to ArrayList
     public ArrayList getresults(String query, int column_size){
-        ArrayList<String> records = new ArrayList<String>();
+        ArrayList<String> records = new ArrayList<>();
         try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery(query);
@@ -178,6 +197,7 @@ public class GetConnection{
                     records.add(rs.getString(i));
                 }                
             }
+            stmt.close();
             rs.close();
         } catch (SQLException ex) {
             showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -185,10 +205,11 @@ public class GetConnection{
         return records;
     }//getResults()
     
-    public ArrayList getresults(String query){
-        ArrayList <ArrayList<String>> records = new ArrayList<ArrayList<String>>();
-        ArrayList <String>record = new ArrayList<String>();
-        try (Statement stmt = conn.createStatement()){
+    public ArrayList <ArrayList<String>> getresults(String query){
+        ArrayList <ArrayList<String>> records = new ArrayList<>();
+        ArrayList <String>record = new ArrayList<>();
+        try {
+            stmt = conn.createStatement();
             rs = stmt.executeQuery(query);
             ResultSetMetaData rsmd = rs.getMetaData();
             int column_size = rsmd.getColumnCount();
@@ -198,8 +219,9 @@ public class GetConnection{
                     record.add(rs.getString(i));
                 }
                 records.add(record);
-                record = new ArrayList<String>();
+                record = new ArrayList<>();
             }
+            stmt.close();
             rs.close();
         } catch (SQLException ex) {
             showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -207,4 +229,19 @@ public class GetConnection{
         return records;
     }//getResults()
     
+    public int runquery(String query){
+        try {
+            stmt = conn.createStatement();
+            if (stmt.execute(query) == true){
+                rs = stmt.getResultSet();
+            } else {
+                return stmt.getUpdateCount();
+            }            
+            stmt.close();
+            rs.close();
+        } catch (SQLException ex){
+            return -1;
+        }
+        return -1;
+    }
 }
