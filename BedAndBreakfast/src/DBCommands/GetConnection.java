@@ -192,10 +192,10 @@ public class GetConnection{
             String sql = "SELECT * FROM guests WHERE last_name='" + lastName +"'";
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
-            if(rs.next()){  
-                name.add(lastName);                              
-            }
-            else{
+            while(rs.next()){  
+                name.add(lastName);              
+            } 
+            if(!rs.next()){
                 name.add("Not Found");
             }
         } catch(SQLException ex) {
