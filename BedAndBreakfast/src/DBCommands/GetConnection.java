@@ -5,6 +5,7 @@
  */
 package DBCommands;
 
+import static java.lang.System.out;
 import java.util.*;
 import java.sql.*;
 import java.util.logging.Level;
@@ -179,12 +180,26 @@ public class GetConnection{
                     +price+"')";
             stmt=conn.createStatement();
             stmt.executeUpdate(sql);
+            stmt.close();
         }
          catch(SQLException ex) {
             System.out.println(ex);
         }
     }
    
+    //method returns one value from database
+    public int getRoomStatus(String query) {
+        int roomStatus = 3; //3 will be invalid input
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(query);
+            rs.next();
+            roomStatus = Integer.parseInt(rs.getString(1));
+        } catch(SQLException ex) {
+            out.println(ex);
+        }
+        return roomStatus;
+    }
     
     //method getResults(), Prasana returning DB info to ArrayList
     public ArrayList getresults(String query, int column_size){
@@ -197,8 +212,8 @@ public class GetConnection{
                     records.add(rs.getString(i));
                 }                
             }
-            stmt.close();
             rs.close();
+            stmt.close();
         } catch (SQLException ex) {
             showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -221,8 +236,8 @@ public class GetConnection{
                 records.add(record);
                 record = new ArrayList<>();
             }
-            stmt.close();
             rs.close();
+            stmt.close();
         } catch (SQLException ex) {
             showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } 
@@ -237,8 +252,8 @@ public class GetConnection{
             } else {
                 return stmt.getUpdateCount();
             }            
-            stmt.close();
             rs.close();
+            stmt.close();
         } catch (SQLException ex){
             return -1;
         }

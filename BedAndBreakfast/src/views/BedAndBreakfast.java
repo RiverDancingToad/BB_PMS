@@ -26,9 +26,9 @@ public class BedAndBreakfast {
         
 
         //Examples of running queries
-        GetConnection db1 = new GetConnection ("bbpms","bbpms","orcl","192.168.1.6",1521);
+        GetConnection db1 = new GetConnection ("bbpms","bbpms","orcl","bbpms.ddns.net",1521);
         db1.getDBConnection();
-        //Single column query
+        //Single column query 
         ArrayList result = db1.getresults("select rm_no from rooms",1);
         System.out.println(result);
         //multiple column query
