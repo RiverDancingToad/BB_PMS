@@ -70,9 +70,8 @@ public class ReservationDAO {
             
             //close connection
             gc.getConn().close();
-        } 
-        catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            ErrorHandling.displayException(ex);
             //catch unique guest_no constraint and offers to create guest
             if(ex.getSQLState().startsWith("23")) {
                 int dialogResults = JOptionPane.showConfirmDialog(null, "Guest"
@@ -110,9 +109,8 @@ public class ReservationDAO {
             
             //close connection
             gc.getConn().close();
-        } 
-        catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            ErrorHandling.displayException(ex);
         }
     }//end checkinReservation()
     
@@ -138,9 +136,8 @@ public class ReservationDAO {
                     "Checked Out", JOptionPane.INFORMATION_MESSAGE);
             //close connection
             gc.getConn().close();
-        } 
-        catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            ErrorHandling.displayException(ex);
         }
     }//end checkOutReservation()
     
@@ -167,9 +164,8 @@ public class ReservationDAO {
             
             //close connection
             gc.getConn().close();
-        } 
-        catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            ErrorHandling.displayException(ex);
         }
     }//end cancelReservation()
     
@@ -197,9 +193,8 @@ public class ReservationDAO {
             
             //close connection
             gc.getConn().close();
-        } 
-        catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            ErrorHandling.displayException(ex);
         }
     }//end noShowReservation()
     
@@ -231,13 +226,33 @@ public class ReservationDAO {
                 "SELECT res_no, last_name, first_name, in_date, out_date, status, rm_no " +
                 " FROM reservations r, guests g WHERE (r.guest_no= g.guest_no) " +
                 " AND (r.status = ?) "+ //reservation status must be set
-                " AND (r.res_no = ?)" +
+                " AND ((r.res_no = ?)" +
                 " OR (r.rm_no = ?)" +
                 " OR (r.in_date >= ? AND r.out_date <=?)" +
                 " OR (g.guest_no = ?)" +
                 " OR (g.first_name=?)" +
-                " OR (g.last_name=?)"
+                " OR (g.last_name=?))"
             );//end ps
+//            String query = "SELECT res_no, last_name, first_name, in_date, out_date, status, rm_no " +
+//                " FROM reservations r, guests g WHERE (r.guest_no= g.guest_no) " +
+//                " AND ((r.status = ?) ";
+//            
+//            if (r.getResNo() != null) {
+//                query = query + " AND (r.res_no = ?)";
+//            } else if (r.getRoomNumber() != null) 
+//                query = query + " AND (r.rm_no = ?)";
+//            }
+////            ps = gc.getConn().prepareStatement(
+//                "SELECT res_no, last_name, first_name, in_date, out_date, status, rm_no " +
+//                " FROM reservations r, guests g WHERE (r.guest_no= g.guest_no) " +
+//                " AND ((r.status = ?) "+ //reservation status must be set
+//                " AND ((r.res_no = ?)" +
+//                " AND ((r.rm_no = ?)" +
+//                " AND ((r.in_date >= ? AND r.out_date <=?)" +
+//                " AND ((g.guest_no = ?)" +
+//                " AND ((g.first_name=?)" +
+//                " AND (g.last_name=?)))))))"
+//            );//end ps
             //set values (8-?)
             ps.setString(1, r.getStatus());
             //ps.setString(1, 4);//test value
@@ -256,8 +271,7 @@ public class ReservationDAO {
                 totalRows = rs.getRow();
             }//end while
         } catch(SQLException ex) {
-            System.out.println(ex);
-            Logger.getLogger(ReservationDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ErrorHandling.displayException(ex);
         }
        
         rowInfo = new String[totalRows][7];//rows must be calulated first
@@ -269,13 +283,24 @@ public class ReservationDAO {
                 "SELECT res_no, last_name, first_name, in_date, out_date, status, rm_no " +
                 " FROM reservations r, guests g WHERE (r.guest_no= g.guest_no) " +
                 " AND (r.status = ?) "+ //reservation status must be set
-                " AND (r.res_no = ?)" +
+                " AND ((r.res_no = ?)" +
                 " OR (r.rm_no = ?)" +
                 " OR (r.in_date >= ? AND r.out_date <=?)" +
                 " OR (g.guest_no = ?)" +
                 " OR (g.first_name=?)" +
-                " OR (g.last_name=?)"                    
+                " OR (g.last_name=?))"                    
             );//end ps
+//            ps = gc.getConn().prepareStatement(
+//                "SELECT res_no, last_name, first_name, in_date, out_date, status, rm_no " +
+//                " FROM reservations r, guests g WHERE (r.guest_no= g.guest_no) " +
+//                " AND ((r.status = ?) "+ //reservation status must be set
+//                " AND ((r.res_no = ?)" +
+//                " AND ((r.rm_no = ?)" +
+//                " AND ((r.in_date >= ? AND r.out_date <=?)" +
+//                " AND ((g.guest_no = ?)" +
+//                " AND ((g.first_name=?)" +
+//                " AND (g.last_name=?)))))))"
+//            );//end ps
             //set values (8-?)
             ps.setString(1, r.getStatus());
             ps.setString(2, r.getResNo());
@@ -298,20 +323,38 @@ public class ReservationDAO {
                     rowInfo[i][2] = rs.getString(3);
                     rowInfo[i][3] = rs.getString(4).split(" ")[0];
                     rowInfo[i][4] = rs.getString(5).split(" ")[0];
-                    rowInfo[i][5] = rs.getString(6);
+                    switch (rs.getString(6)){
+                        case "0":
+                            rowInfo[i][5] = "Reserved";
+                            break;
+                        case "1":
+                            rowInfo[i][5] = "Checked In";
+                            break;
+                        case "2":
+                            rowInfo[i][5] = "Checked Out";
+                            break;
+                        case "3":
+                            rowInfo[i][5] = "Cancelled";
+                            break;
+                        case "4":
+                            rowInfo[i][5] = "No Show";
+                            break;
+                        default:
+                            rowInfo[i][5] = "Reserved";
+                    }
                     rowInfo[i][6] = rs.getString(7);               
                     i++;               
                 }//end while
             }
             catch(Exception ex){
-                System.out.println("Here"+ex);
-            }       
+            ErrorHandling.displayException(ex);
+            }
+        
         
             //close DB connection
             gc.getConn().close();
         } catch(Exception ex) {
-            System.out.println(ex);
-            Logger.getLogger(ReservationDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ErrorHandling.displayException(ex);
         }//end try     
         return rowInfo;
     }

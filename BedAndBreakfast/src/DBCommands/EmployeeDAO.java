@@ -72,7 +72,7 @@ public class EmployeeDAO {
             gc.getConn().close();            
         } 
         catch(SQLException ex) {
-            showMessageDialog(null,"Unable to Add Employee"+ex);
+            ErrorHandling.displayException(ex,"Unable to Add Employee");
         }
     }
    
@@ -122,7 +122,7 @@ public class EmployeeDAO {
         } 
         catch(SQLException ex) {
             //System.out.println("whoops"); //replace with a real exception
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ErrorHandling.displayException(ex);
         }
         
         //Returns the List of Employees
@@ -154,12 +154,9 @@ public class EmployeeDAO {
 
             ps.executeQuery();
             gc.getConn().close();
-            showMessageDialog(null, "Employee Updated: "+employee.getLastName()
-                    +", "+employee.getFirstName(),"Record Update",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } 
-        catch(SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+            showMessageDialog(null, "Employee Updated: "+employee.getLastName()+", "+employee.getFirstName(),"Record Update", JOptionPane.INFORMATION_MESSAGE);
+        } catch(SQLException ex) {
+            ErrorHandling.displayException(ex);
         }
     }//end updateEmployee()
     
@@ -180,11 +177,9 @@ public class EmployeeDAO {
             ps.setString(1, empID);
             ps.executeQuery();
             gc.getConn().close();
-            showMessageDialog(null, "Employee Record Deleted: "+ 
-                    empID, "Record Deleted", JOptionPane.INFORMATION_MESSAGE);
-        }
-        catch(SQLException ex){
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);  
+            showMessageDialog(null, "Employee Record Deleted: "+ empID, "Record Deleted", JOptionPane.INFORMATION_MESSAGE);
+        } catch(SQLException ex){
+            ErrorHandling.displayException(ex); 
         }
     }
     
